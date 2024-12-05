@@ -7,6 +7,7 @@
   },
   "tasks": {
     "run": "deno run --allow-read --allow-write",
-    "run-watch": "deno run --watch --allow-read --allow-write"
+    "run-watch": "deno run --watch --allow-read --allow-write",
+    "test": "deno test --watch --allow-import --allow-read"
   }
 }

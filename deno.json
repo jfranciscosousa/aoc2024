@@ -1,0 +1,12 @@
+{
+  "imports": {
+    "lodash": "https://cdn.skypack.dev/lodash?dts",
+    "path": "https://deno.land/std@0.138.0/path/mod.ts",
+    "routine": "https://deno.land/x/routine/mod.ts",
+    "@std/assert": "jsr:@std/assert@1"
+  },
+  "tasks": {
+    "run": "deno run --allow-read --allow-write",
+    "run-watch": "deno run --watch --allow-read --allow-write"
+  }
+}

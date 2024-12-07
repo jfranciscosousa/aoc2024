@@ -2,55 +2,53 @@ const REGEX = /(\d+):([\d ]+)/;
 
 type Operator = "+" | "*" | "||";
 
-function generateOperationPermutations(
-  arr: number[],
-  useConcatenationOperator = false
-): (number | Operator)[][] {
-  if (arr.length < 2) return [arr];
-
-  const operators: Operator[] = ["+", "*"];
-  if (useConcatenationOperator) operators.push("||");
-  const results: (number | Operator)[][] = [];
-
-  function backtrack(
-    current: (number | Operator)[],
-    index: number,
-    depth = 0
-  ) {
-    if (depth === arr.length - 1) {
-      results.push(current);
-      return;
-    }
-
-    for (const operator of operators) {
-      const nextCurrent = current.length === 0
-        ? [arr[0], operator, arr[1]]
-        : [...current, operator, arr[index + 1]];
-
-      backtrack(nextCurrent, index + 1, depth + 1);
-    }
-  }
-
-  backtrack([], 0);
-
-  return results;
-}
-
-function applyOperation(
-  current: number,
-  operator: Operator | undefined,
-  token: number
-): number {
+// Inline operation to avoid overhead of an extra function call
+function applyOp(current: number, operator: Operator, token: number): number {
   switch (operator) {
-    case "||":
-      return Number(`${current}${token}`);
+    case "||": {
+      // Numeric concatenation which is faster than a string concatenation
+      const digits = token === 0 ? 1 : Math.floor(Math.log10(token)) + 1;
+      return current * 10 ** digits + token;
+    }
     case "+":
       return current + token;
     case "*":
       return current * token;
-    default:
-      return token;
   }
+}
+
+// This function tries all operator combinations on the fly and returns true as soon as a match is found
+function checkIfMatch(
+  arr: number[],
+  testValue: number,
+  operators: Operator[],
+  currentIndex: number,
+  currentTotal: number,
+  currentOperator: Operator | null
+): boolean {
+  // If we've placed operators between all numbers
+  if (currentIndex === arr.length) {
+    // Reached the end, check if total matches
+    return currentTotal === testValue;
+  }
+
+  // Try all operators for arr[currentIndex]
+  for (const op of operators) {
+    // Apply the next number with this operator
+    const newTotal =
+      currentOperator === null
+        ? arr[currentIndex] // First number, no operation
+        : applyOp(currentTotal, currentOperator, arr[currentIndex]);
+
+    // If match found downstream, short-circuit
+    if (
+      checkIfMatch(arr, testValue, operators, currentIndex + 1, newTotal, op)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 async function calculate(
@@ -58,40 +56,30 @@ async function calculate(
   useConcatenationOperator = false
 ): Promise<number> {
   const fileContent = await Deno.readTextFile(inputPath);
+  const lines = fileContent.trim().split("\n");
 
-  return fileContent
-    .trim()
-    .split("\n")
-    .reduce((total, line) => {
-      const match = line.trim().match(REGEX);
-      if (!match) throw new Error("Invalid input format");
+  const baseOps: Operator[] = ["+", "*"];
+  const operators = useConcatenationOperator
+    ? [...baseOps, "||" as const]
+    : baseOps;
 
-      const [_, testValueUnparsed, numbersUnparsed] = match;
-      const testValue = Number(testValueUnparsed);
-      const numbers = numbersUnparsed.trim().split(" ").map(Number);
+  let finalTotal = 0;
 
-      const operations = generateOperationPermutations(
-        numbers,
-        useConcatenationOperator
-      );
+  for (const line of lines) {
+    const match = line.match(REGEX);
+    if (!match) throw new Error("Invalid input format");
 
-      const isMatch = operations.some(operation => {
-        let total = 0;
-        let currentOperator: Operator | undefined;
+    const testValue = Number(match[1]);
+    const numbers = match[2].split(" ").map(Number);
 
-        for (const token of operation) {
-          if (typeof token === 'string') {
-            currentOperator = token as Operator;
-          } else {
-            total = applyOperation(total, currentOperator, token);
-          }
-        }
+    // Check if any permutation can produce testValue
+    // Start with the first number already applied, so currentOperator = null
+    if (checkIfMatch(numbers, testValue, operators, 1, numbers[0], null)) {
+      finalTotal += testValue;
+    }
+  }
 
-        return total === testValue;
-      });
-
-      return isMatch ? total + testValue : total;
-    }, 0);
+  return finalTotal;
 }
 
 export function part1(inputPath: string): Promise<number> {

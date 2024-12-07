@@ -18,7 +18,8 @@
   "remote": {
     "https://cdn.skypack.dev/-/lodash@v4.17.21-K6GEbP02mWFnLA45zAmi/dist=es2019,mode=imports/optimized/lodash.js": "10c4df47937ffc78548d136dd535a021df5f57182a653260d715c0690dd22978",
     "https://cdn.skypack.dev/lodash?dts": "8280de0b3efd87f06ea0eb330d15b8de32c059556023b8c6524e9eb9e4844dc0",
-    "https://deno.land/std@0.173.0/async/pool.ts": "fd082bd4aaf26445909889435a5c74334c017847842ec035739b4ae637ae8260"
+    "https://deno.land/std@0.173.0/async/pool.ts": "fd082bd4aaf26445909889435a5c74334c017847842ec035739b4ae637ae8260",
+    "https://deno.land/std@0.224.0/async/pool.ts": "2b972e3643444b73f6a8bcdd19799a2d0821b28a45fbe47fd333223eb84327f0"
   },
   "workspace": {
     "dependencies": [

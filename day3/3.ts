@@ -1,5 +1,5 @@
-const MUL_REGEX = /mul\(([\d]+),([\d]+)\)/g;
-const MUL_REGEX_DO_OR_DONT = /(mul\(([\d]+),([\d]+)\))|(do|don't)\(\)/g;
+const MUL_REGEX = /mul\((\d{1,3}),(\d{1,3})\)/g;
+const MUL_REGEX_DO_OR_DONT = /(mul\((\d{1,3}),(\d{1,3})\))|(do|don't)\(\)/g;
 
 export async function part1(inputPath: string): Promise<number> {
   const input = await Deno.readTextFile(inputPath);

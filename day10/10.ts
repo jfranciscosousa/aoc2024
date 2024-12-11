@@ -1,3 +1,6 @@
+import { readInputMatrix } from "../utils/files.ts";
+import { Matrix } from "../utils/matrix.ts";
+
 const DIRECTIONS = [
   [1, 0],
   [0, 1],
@@ -6,10 +9,10 @@ const DIRECTIONS = [
 ];
 
 class TopograhicMap {
-  private map: number[][];
+  private map: Matrix<number>;
   private trailheads: { score: number; rating: number }[];
 
-  constructor(map: number[][]) {
+  constructor(map: Matrix<number>) {
     this.map = map;
     this.trailheads = this.findTrailheads();
   }
@@ -20,15 +23,14 @@ class TopograhicMap {
     nextY: number,
     nextX: number
   ): boolean {
-    const height = this.map.length;
-    const width = this.map[0].length;
+    const { height, width } = this.map;
 
     // Check bounds
     if (nextY < 0 || nextX < 0 || nextY >= height || nextX >= width) {
       return false;
     }
 
-    return this.map[prevY][prevX] - this.map[nextY][nextX] === -1;
+    return this.map.get(prevY, prevX) - this.map.get(nextY, nextX) === -1;
   }
 
   private dfs(startY: number, startX: number) {
@@ -39,12 +41,12 @@ class TopograhicMap {
     const explore = (y: number, x: number): void => {
       currentPath.push(`${y},${x}`);
 
-      if (this.map[y][x] === 9) {
+      if (this.map.get(y, x) === 9) {
         tops.add(`${y},${x}`);
         paths.add(currentPath.join("-"));
       }
 
-      if (this.map[y][x] === 0) {
+      if (this.map.get(y, x) === 0) {
         currentPath = [];
       }
 
@@ -66,11 +68,9 @@ class TopograhicMap {
   private findTrailheads() {
     const newTrailheads: { score: number; rating: number }[] = [];
 
-    for (let y = 0; y < this.map.length; y++) {
-      for (let x = 0; x < this.map[y].length; x++) {
-        if (this.map[y][x] === 0) {
-          newTrailheads.push(this.dfs(y, x));
-        }
+    for (const [value, y, x] of this.map) {
+      if (value === 0) {
+        newTrailheads.push(this.dfs(y, x));
       }
     }
 
@@ -86,10 +86,7 @@ class TopograhicMap {
   }
 
   static async buildFromFile(inputPath: string) {
-    const map = (await Deno.readTextFile(inputPath))
-      .trim()
-      .split("\n")
-      .map((l) => l.split("").map(Number));
+    const map = await readInputMatrix(inputPath, Number);
 
     return new TopograhicMap(map);
   }

@@ -1,12 +1,12 @@
 import { chain } from "lodash";
+import { readInputContent } from "../utils/files.ts";
 
 type Disk = (number | undefined)[];
 
 async function buildDisk(inputPath: string) {
-  const blockinfo = (await Deno.readTextFile(inputPath))
-    .trim()
-    .split("")
-    .map(Number);
+  const blockinfo = await readInputContent(inputPath)
+    .then((v) => v.split(""))
+    .then((v) => v.map(Number));
   const disk: (number | undefined)[] = [];
 
   let id = 0;

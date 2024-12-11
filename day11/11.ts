@@ -1,4 +1,5 @@
-import { Multiset } from "./multiset.ts";
+import { readInputContent } from "../utils/files.ts";
+import { Multiset } from "../utils/multiset.ts";
 
 function blink(data: Multiset<number>, limit = 25): Multiset<number> {
   for (let iteration = 0; iteration < limit; iteration++) {
@@ -30,20 +31,26 @@ function blink(data: Multiset<number>, limit = 25): Multiset<number> {
       }
     }
 
-    data = newData;    
+    data = newData;
   }
   return data;
 }
 
-export async function part1(inputPath: string) {  
-  const input = Multiset.fromArray<number>((await Deno.readTextFile(inputPath)).trim().split(" ").map(Number));
-
-  return blink(input).size();
+function prepareInput(inputPath: string): Promise<Multiset<number>> {
+  return readInputContent(inputPath)
+    .then((i) => i.split(" "))
+    .then((i) => i.map(Number))
+    .then((i) => Multiset.fromArray(i));
 }
 
-export async function part2(inputPath: string) {
-  const input = Multiset.fromArray<number>((await Deno.readTextFile(inputPath)).trim().split(" ").map(Number));
-
-  return blink(input, 75).size()
+export function part1(inputPath: string) {
+  return prepareInput(inputPath)
+    .then((i) => blink(i))
+    .then((i) => i.size());
 }
- 
+
+export function part2(inputPath: string) {
+  return prepareInput(inputPath)
+    .then((i) => blink(i, 75))
+    .then((i) => i.size());
+}

@@ -1,27 +1,17 @@
-async function getMap(inputPath: string): Promise<string[][]> {
-  const fileContent = await Deno.readTextFile(inputPath);
+import { readInputMatrix } from "../utils/files.ts";
+import { Matrix } from "../utils/matrix.ts";
 
-  return fileContent
-    .trim()
-    .split("\n")
-    .map((l) => l.split(""));
-}
-
-function getAntennas(map: string[][]) {
+function getAntennas(map: Matrix<string>) {
   const antennas = new Map<string, Set<string>>();
 
-  // Store antenna locations
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[y].length; x++) {
-      const curr = map[y][x];
-      const pos = `${y},${x}`;
+  for (const [curr, y, x] of map) {
+    const pos = `${y},${x}`;
 
-      if (curr !== ".") {
-        const existing = antennas.get(curr);
+    if (curr !== ".") {
+      const existing = antennas.get(curr);
 
-        if (existing) antennas.set(curr, existing.add(pos));
-        else antennas.set(curr, new Set<string>().add(pos));
-      }
+      if (existing) antennas.set(curr, existing.add(pos));
+      else antennas.set(curr, new Set<string>().add(pos));
     }
   }
 
@@ -36,7 +26,7 @@ function distanceBetweenPoints(y1: number, x1: number, y2: number, x2: number) {
 }
 
 function countAntinodes(
-  map: string[][],
+  map: Matrix<string>,
   coordinates: number[][],
   currentIndex = 0,
   antinodes = new Set<string>()
@@ -61,14 +51,14 @@ function countAntinodes(
     const newx = +restCoordinate[1] + distance[1];
 
     // Add it to the antinodes set, remember, we only want unique positions
-    if (map[newy]?.[newx]) antinodes.add(`${newy},${newx}`);
+    if (map.get(newy, newx)) antinodes.add(`${newy},${newx}`);
   });
 
   return countAntinodes(map, coordinates, currentIndex + 1, antinodes);
 }
 
 export async function part1(inputPath: string): Promise<number> {
-  const map = await getMap(inputPath);
+  const map = await readInputMatrix(inputPath, String);
   const antennas = getAntennas(map);
 
   let antinodes = new Set<string>();
@@ -85,7 +75,7 @@ export async function part1(inputPath: string): Promise<number> {
 }
 
 function countAntinodes2(
-  map: string[][],
+  map: Matrix<string>,
   coordinates: number[][],
   currentIndex = 0,
   antinodes = new Set<string>()
@@ -114,7 +104,7 @@ function countAntinodes2(
       newx -= distance[1];
 
       // Add it to the antinodes set, remember, we only want unique positions
-      if (map[newy]?.[newx]) antinodes.add(`${newy},${newx}`);
+      if (map.get(newy, newx)) antinodes.add(`${newy},${newx}`);
       else done = true;
     }
   });
@@ -123,7 +113,7 @@ function countAntinodes2(
 }
 
 export async function part2(inputPath: string): Promise<number> {
-  const map = await getMap(inputPath);
+  const map = await readInputMatrix(inputPath, String);
   const antennas = getAntennas(map);
 
   let antinodes = new Set<string>();

@@ -10,12 +10,10 @@ export function readInputLines(inputPath: string) {
 
 export function readInputMatrix<T>(
   inputPath: string,
-  transformer?: (raw: string) => T extends undefined ? string : T
-): Promise<Matrix<T extends undefined ? string : T>> {
+  transformer: (raw: string) => T
+): Promise<Matrix<T>> {
   function transformerWithCast(v: string) {
-    return transformer
-      ? transformer(v)
-      : (v as T extends undefined ? string : T);
+    return transformer ? transformer(v) : v as T;
   }
 
   return readInputContent(inputPath)

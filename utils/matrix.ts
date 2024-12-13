@@ -27,6 +27,25 @@ class Matrix<T> {
   }
 
   /**
+   * Static method to create a matrix from dimensions
+   */
+  static fromDimensions<T>(
+    height: number,
+    width: number,
+    defaultValue: T
+  ): Matrix<T> {
+    const arr: T[][] = [];
+    for (let r = 0; r < height; r++) {
+      const row: T[] = [];
+      for (let c = 0; c < width; c++) {
+        row.push(defaultValue);
+      }
+      arr.push(row);
+    }
+    return new Matrix(arr);
+  }
+
+  /**
    * Get the value at (y, x)
    */
   get(y: number, x: number): T {

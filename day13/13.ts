@@ -79,8 +79,6 @@ function solveMachine(machine: Machine) {
   const solution = solveLargeNumberMatrix(A, B);
   const result = solution[0].mul(3).add(solution[1]);
 
-  console.log(solution);
-
   // if some of the matrix solutions are not whole return 0!!
   if (solution.some((b: Big) => !isWholeNumber(b))) return 0;
 

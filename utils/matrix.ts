@@ -1,5 +1,5 @@
 class Matrix<T> {
-  private data: T[][];
+  public data: T[][];
   readonly height: number;
   readonly width: number;
 
@@ -75,6 +75,31 @@ class Matrix<T> {
         yield [this.data[y][x], y, x];
       }
     }
+  }
+
+  calculateEntropy(): number {
+    const { width, height, data } = this;
+
+    if (width === 0 || height === 0) return 0; // Empty matrix check
+
+    const totalCells = height * width;
+    // deno-lint-ignore no-explicit-any
+    const frequency: any = {};
+
+    for (let row = 0; row < height; row++) {
+      for (let col = 0; col < width; col++) {
+        const cell = data[row][col];
+        frequency[cell] = (frequency[cell] || 0) + 1;
+      }
+    }
+
+    let entropy = 0;
+    for (const symbol in frequency) {
+      const probability = frequency[symbol] / totalCells;
+      entropy -= probability * Math.log2(probability);
+    }
+
+    return entropy;
   }
 }
 

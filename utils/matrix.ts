@@ -1,5 +1,5 @@
-class Matrix<T> {
-  public data: T[][];
+class Matrix<T = unknown> {
+  private content: T[][];
   readonly height: number;
   readonly width: number;
 
@@ -14,7 +14,7 @@ class Matrix<T> {
       throw new Error("All rows must have the same width.");
     }
 
-    this.data = data;
+    this.content = data;
     this.height = data.length;
     this.width = data[0].length;
   }
@@ -53,7 +53,7 @@ class Matrix<T> {
       return undefined!;
     }
 
-    return this.data[y][x];
+    return this.content[y][x];
   }
 
   /**
@@ -63,7 +63,11 @@ class Matrix<T> {
     if (y < 0 || y >= this.height || x < 0 || x >= this.width) {
       throw new RangeError(`Coordinates (${y}, ${x}) are out of bounds.`);
     }
-    this.data[y][x] = value;
+    this.content[y][x] = value;
+  }
+
+  get data() {
+    return structuredClone(this.content);
   }
 
   /**
@@ -72,13 +76,13 @@ class Matrix<T> {
   *[Symbol.iterator](): IterableIterator<[T, number, number]> {
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        yield [this.data[y][x], y, x];
+        yield [this.content[y][x], y, x];
       }
     }
   }
 
   calculateEntropy(): number {
-    const { width, height, data } = this;
+    const { width, height, content } = this;
 
     if (width === 0 || height === 0) return 0; // Empty matrix check
 
@@ -88,7 +92,7 @@ class Matrix<T> {
 
     for (let row = 0; row < height; row++) {
       for (let col = 0; col < width; col++) {
-        const cell = data[row][col];
+        const cell = content[row][col];
         frequency[cell] = (frequency[cell] || 0) + 1;
       }
     }
@@ -100,6 +104,10 @@ class Matrix<T> {
     }
 
     return entropy;
+  }
+
+  toString() {
+    return this.content.map((s) => s.join("")).join("\n");
   }
 }
 
